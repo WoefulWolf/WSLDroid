@@ -31,8 +31,6 @@ jobs:
             libelf-dev \
             cpio \
             qemu-utils \
-            libncurses-dev \
-            libncursesw-dev \
             wget \
             unzip \
             rsync \

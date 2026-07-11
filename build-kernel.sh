@@ -1,4 +1,4 @@
-sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev cpio qemu-utils libncurses-dev libncursesw-dev wget
+sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev cpio qemu-utils wget
 wget https://github.com/microsoft/WSL2-Linux-Kernel/archive/refs/tags/linux-msft-wsl-6.18.35.2.zip
 unzip -x linux-msft-wsl-6.18.35.2.zip
 cd linux-msft-wsl-6.18.35.2
