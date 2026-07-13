@@ -1,4 +1,4 @@
-# Low-Latency Custom FreeRDP Android Emulator Client
+# FreeRDP Android Client
 
 This project is a high-performance, modular FreeRDP 3.x client built with Qt 6.11.1 and compiled under MinGW-w64 (GCC 13.1.0). It is designed to display a Weston RDP backend running inside Windows Subsystem for Linux (WSL) as a phone-like Android Virtual Device (AVD) emulator skin. It features extremely low latency and interactive mouse and keyboard controls.
 
