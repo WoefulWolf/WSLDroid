@@ -31,6 +31,12 @@ add_executable(rdp_emulator
     src/toolbutton.cpp
 )
 
+set_target_properties(rdp_emulator PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../bin"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/../bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/../bin"
+)
+
 target_link_libraries(rdp_emulator PRIVATE
     Qt6::Core
     Qt6::Gui

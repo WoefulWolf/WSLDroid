@@ -142,11 +142,11 @@ void RdpClient::setConnectionInfo(const QString& host, int port, const QString& 
 }
 
 void RdpClient::connectToServer() {
-    if (m_worker && m_worker->isRunning()) {
-        return;
+    if (m_worker) {
+        m_worker->stop();
+        delete m_worker;
+        m_worker = nullptr;
     }
-
-
 
     cleanupFreeRDP();
 

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPoint>
+#include <QTimer>
 
 class RdpClient;
 class RdpScreen;
@@ -28,6 +29,7 @@ private slots:
     void onConnected();
     void onDisconnected();
     void onConnectionFailed(const QString& reason);
+    void tryReconnect();
     
     
     void onToolbarVolumeUp();
@@ -60,6 +62,9 @@ private:
     
     bool m_dragging = false;
     QPoint m_dragPosition;
+    
+    QTimer* m_reconnectTimer;
+    bool m_isConnected = false;
 
     void runAdbCommand(int keyevent);
 };

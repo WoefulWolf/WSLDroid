@@ -72,7 +72,7 @@ cmake --build build
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`n[+] Build successful!" -ForegroundColor Green
     Write-Host "You can run the emulator using:" -ForegroundColor Yellow
-    Write-Host ".\build\rdp_emulator.exe --host=127.0.0.1 --port=3389 --width=393 --height=852" -ForegroundColor White
+    Write-Host "..\bin\rdp_emulator.exe --host=127.0.0.1 --port=3389 --width=393 --height=852" -ForegroundColor White
 } else {
     Write-Host "`n[-] Build failed!" -ForegroundColor Red
 }

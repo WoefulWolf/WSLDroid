@@ -136,7 +136,7 @@ void RdpScreen::paintEvent(QPaintEvent* event) {
         painter.fillRect(rect(), QColor("#121214"));
         painter.setPen(QColor("#5F6368"));
         painter.setFont(QFont("Outfit", 12));
-        painter.drawText(rect(), Qt::AlignCenter, "Not Connected\n\nEnter connection details and click Connect");
+        painter.drawText(rect(), Qt::AlignCenter, "Not Connected\n\nReconnecting to RDP Server...");
         return;
     }
 

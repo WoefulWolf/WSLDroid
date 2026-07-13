@@ -37,6 +37,10 @@ MainWindow::MainWindow(const QString& host, int port, int width, int height, QWi
     connect(m_client, &RdpClient::disconnected, this, &MainWindow::onDisconnected);
     connect(m_client, &RdpClient::connectionFailed, this, &MainWindow::onConnectionFailed);
     
+    m_reconnectTimer = new QTimer(this);
+    m_reconnectTimer->setInterval(2000);
+    connect(m_reconnectTimer, &QTimer::timeout, this, &MainWindow::tryReconnect);
+    
     
     createToolbar();
     
@@ -183,19 +187,31 @@ void MainWindow::keyPressEvent(QKeyEvent* event) {
 
 
 void MainWindow::onConnected() {
+    m_isConnected = true;
+    m_reconnectTimer->stop();
     qDebug() << "RDP: Connected to remote server.";
 }
 
 void MainWindow::onDisconnected() {
+    m_isConnected = false;
+    m_reconnectTimer->start();
     qDebug() << "RDP: Disconnected from remote server.";
     m_screen->update(); 
 }
 
 void MainWindow::onConnectionFailed(const QString& reason) {
+    m_isConnected = false;
+    m_reconnectTimer->start();
     qWarning() << "RDP Connection Failed:" << reason;
     m_screen->update();
 }
 
+void MainWindow::tryReconnect() {
+    if (!m_isConnected) {
+        qDebug() << "RDP: Attempting to reconnect...";
+        m_client->connectToServer();
+    }
+}
 
 
 void MainWindow::runAdbCommand(int keyevent) {

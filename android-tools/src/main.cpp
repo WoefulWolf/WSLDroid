@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QProcess>
 #include "mainwindow.h"
 
 #ifdef _WIN32
@@ -26,6 +27,7 @@ int main(int argc, char *argv[]) {
     int port = 3389;
     int width = 393;
     int height = 852;
+    QString distro = "";
 
     
     QStringList args = app.arguments();
@@ -45,6 +47,8 @@ int main(int argc, char *argv[]) {
             bool ok = false;
             int parsedHeight = arg.mid(9).toInt(&ok);
             if (ok) height = parsedHeight;
+        } else if (arg.startsWith("--distro=")) {
+            distro = arg.mid(9);
         }
     }
     
@@ -52,6 +56,11 @@ int main(int argc, char *argv[]) {
     w.show();
     
     int result = app.exec();
+
+    if (!distro.isEmpty()) {
+        QString cmd = QString("wsl.exe -d %1 -e sh -c \"waydroid session stop; pkill weston\"").arg(distro);
+        QProcess::execute(cmd);
+    }
 
 #ifdef _WIN32
     if (wsaRet == 0) {
