@@ -6,6 +6,13 @@
 #include <QWheelEvent>
 #include <QDebug>
 #include <algorithm>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QUrl>
+#include <QProcess>
+#include <QFileInfo>
+#include <QProgressDialog>
 
 
 #define INPUT_PTR_FLAGS_MOVE 0x0800
@@ -115,6 +122,7 @@ RdpScreen::RdpScreen(RdpClient* client, QWidget* parent)
     : QWidget(parent), m_client(client), m_scalingMode(FitAspectRatio) {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
+    setAcceptDrops(true);
     
     
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -333,4 +341,58 @@ void RdpScreen::keyReleaseEvent(QKeyEvent* event) {
         }
     }
     event->accept();
+}
+
+void RdpScreen::dragEnterEvent(QDragEnterEvent* event) {
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+
+void RdpScreen::dropEvent(QDropEvent* event) {
+    const QMimeData* mimeData = event->mimeData();
+    if (mimeData->hasUrls()) {
+        QList<QUrl> urlList = mimeData->urls();
+        for (const QUrl& url : urlList) {
+            if (url.isLocalFile()) {
+                QString filePath = url.toLocalFile();
+                QFileInfo fileInfo(filePath);
+                QProgressDialog *progress = new QProgressDialog(this);
+                progress->setWindowModality(Qt::WindowModal);
+                progress->setCancelButton(nullptr);
+                progress->setRange(0, 0);
+
+                QProcess *process = new QProcess(this);
+                connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), 
+                        [progress, process]() {
+                            progress->close();
+                            progress->deleteLater();
+                            process->deleteLater();
+                        });
+                connect(process, &QProcess::errorOccurred, 
+                        [progress, process](QProcess::ProcessError) {
+                            progress->close();
+                            progress->deleteLater();
+                            process->deleteLater();
+                        });
+
+                QString ext = fileInfo.suffix().toLower();
+                if (ext == "apk") {
+                    qDebug() << "Installing APK via Drag and Drop:" << filePath;
+                    progress->setLabelText("Installing " + fileInfo.fileName() + "...");
+                    process->start("adb", QStringList() << "install" << filePath);
+                } else if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "svg" || ext == "gif" || ext == "webp" || ext == "bmp") {
+                    qDebug() << "Pushing image to /sdcard/DCIM/ via Drag and Drop:" << filePath;
+                    progress->setLabelText("Sending image " + fileInfo.fileName() + " to DCIM...");
+                    process->start("adb", QStringList() << "push" << filePath << "/sdcard/DCIM/");
+                } else {
+                    qDebug() << "Pushing file to /sdcard/Download/ via Drag and Drop:" << filePath;
+                    progress->setLabelText("Sending " + fileInfo.fileName() + " to Downloads...");
+                    process->start("adb", QStringList() << "push" << filePath << "/sdcard/Download/");
+                }
+                progress->show();
+            }
+        }
+        event->acceptProposedAction();
+    }
 }
