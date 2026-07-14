@@ -1,0 +1,3 @@
+[submodule "weston"]
+	path = weston
+	url = https://github.com/yohanesokta/weston-wslg.git
