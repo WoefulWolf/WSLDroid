@@ -1,0 +1,3 @@
+[wsl2]
+kernel=C:\\kernel\\Android.kernel
+kernelModules=C:\\kernel\\modules.vhdx
