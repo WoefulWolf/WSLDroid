@@ -1,6 +1,9 @@
 # Android ( Waydroid ) in WSL 2
 > Ide awal proyek ini berdasarkan dari [gits](https://gist.github.com/onomatopellan/c5220c0efddaff69aaff77cca80b7b8e) komuntas
 
+<img width="1468" height="1080" alt="{B8EE1C41-E7BC-4E19-9FFE-31EF594D5E0F}" src="https://github.com/user-attachments/assets/86e2ec8b-8a4b-403e-9a03-1cabe4fd9d67" />
+
+
 ## Konfigurasi Kernel WSL
 
 Bagian ini menjelaskan konfigurasi tambahan pada kernel WSL yang diperlukan agar Waydroid dapat berjalan dengan baik.
