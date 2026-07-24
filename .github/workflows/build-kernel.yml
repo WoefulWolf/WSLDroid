@@ -11,6 +11,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free disk space
+        run: |
+          echo "Before:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/share/swift
+          sudo docker image prune --all --force || true
+          sudo apt-get clean
+          echo "After:"
+          df -h /
+
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -37,17 +53,25 @@ jobs:
           SOURCE_DIR="$(find . -maxdepth 1 -type d -name 'WSL2-Linux-Kernel-*' -print -quit)"
           test -n "$SOURCE_DIR"
           echo "SOURCE_DIR=$SOURCE_DIR" >> "$GITHUB_ENV"
+          # ---- ADDED: drop the source zip, no longer needed (~200 MB) ----
+          rm -f "${KERNEL_VERSION}.zip"
 
       - name: Build kernel and modules
         run: |
           cd "$SOURCE_DIR"
           make -j"$(nproc)" KCONFIG_CONFIG=../CONFIG_KERNEL_WSL_ANDROID
-          make INSTALL_MOD_PATH="$PWD/modules" modules_install
-          find ./modules/lib/modules/"$(make -s kernelrelease)" -name '*.ko' -exec strip --strip-unneeded {} \;
+          # ---- CHANGED: strip during install instead of after ----
+          make INSTALL_MOD_PATH="$PWD/modules" INSTALL_MOD_STRIP=1 modules_install
+          df -h /
           sudo ./Microsoft/scripts/gen_modules_vhdx.sh "$PWD/modules" "$(make -s kernelrelease)" modules.vhdx
           mv arch/x86/boot/bzImage Android.kernel
           cp Android.kernel "$GITHUB_WORKSPACE/Android.kernel"
           cp modules.vhdx "$GITHUB_WORKSPACE/modules.vhdx"
+
+      - name: Verify bridge is built in
+        run: |
+          grep -E '^CONFIG_(BRIDGE|STP|LLC)=' "$GITHUB_WORKSPACE/CONFIG_KERNEL_WSL_ANDROID" || true
+          ls -lh "$GITHUB_WORKSPACE/Android.kernel" "$GITHUB_WORKSPACE/modules.vhdx"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
